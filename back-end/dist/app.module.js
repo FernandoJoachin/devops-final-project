@@ -12,6 +12,7 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const vehicles_module_1 = require("./vehicles/vehicles.module");
 const common_module_1 = require("./common/common.module");
+const drivers_module_1 = require("./drivers/drivers.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,6 +29,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             vehicles_module_1.VehiclesModule,
             common_module_1.CommonModule,
+            drivers_module_1.DriversModule,
         ],
     })
 ], AppModule);
