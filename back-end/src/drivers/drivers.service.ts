@@ -21,7 +21,7 @@ export class DriversService {
       
       return driver;
     } catch (error) {
-      this.exceptionService.handleDBExceptions(error)
+      this.exceptionService.handleDBExceptions(error);
     }
   }
 

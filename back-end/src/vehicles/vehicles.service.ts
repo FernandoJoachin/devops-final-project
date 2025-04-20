@@ -21,7 +21,7 @@ export class VehiclesService {
       
       return vehicle;
     } catch (error) {
-      this.exceptionService.handleDBExceptions(error)
+      this.exceptionService.handleDBExceptions(error);
     }
   }
 
