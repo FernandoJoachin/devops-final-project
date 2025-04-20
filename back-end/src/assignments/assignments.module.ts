@@ -6,13 +6,16 @@ import { CommonModule } from 'src/common/common.module';
 import { Assignment, AssignmentHistory } from './entities';
 import { Driver } from 'src/drivers/entities';
 import { Vehicle } from 'src/vehicles/entities';
+import { DriversService } from 'src/drivers/drivers.service';
+import { VehiclesService } from 'src/vehicles/vehicles.service';
 
 @Module({
   controllers: [AssignmentsController],
-  providers: [AssignmentsService],
+  providers: [AssignmentsService, DriversService, VehiclesService],
   imports: [
     TypeOrmModule.forFeature([ Assignment, AssignmentHistory, Vehicle, Driver ]),
     CommonModule
   ],
+  exports: [AssignmentsService]
 })
 export class AssignmentsModule {}

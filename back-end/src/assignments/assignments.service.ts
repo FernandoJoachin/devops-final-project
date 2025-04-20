@@ -19,8 +19,8 @@ export class AssignmentsService {
     private readonly assignmentHistoryRepository : Repository<AssignmentHistory>,
     private readonly dataSource : DataSource,
 
-    private readonly vehicleService : VehiclesService,
     private readonly driverService : DriversService,
+    private readonly vehicleService : VehiclesService,
     private readonly exceptionService: ExceptionService
   ){}
   
