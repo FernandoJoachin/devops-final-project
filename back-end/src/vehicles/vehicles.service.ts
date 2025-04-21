@@ -40,9 +40,20 @@ export class VehiclesService {
     return vehicle; 
   }
 
-  update(id: string, updateVehicleDto: UpdateVehicleDto) {
-    return `This action updates a #${id} vehicle`;
-  }
+  async update(id: string, updateVehicleDto: UpdateVehicleDto) {
+    const vehicle = await this.vehicleRepository.preload({
+      id,
+      ...updateVehicleDto,
+    });
+
+    if (!vehicle) this.exceptionService.throwNotFound("Vehicle", id);
+
+    try {
+      return await this.vehicleRepository.save(vehicle);
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error);
+    }
+  }  
 
   remove(id: string) {
     return `This action removes a #${id} vehicle`;

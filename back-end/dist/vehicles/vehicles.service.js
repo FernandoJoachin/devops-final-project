@@ -44,8 +44,20 @@ let VehiclesService = class VehiclesService {
     findOne(id) {
         return `This action returns a #${id} vehicle`;
     }
-    update(id, updateVehicleDto) {
-        return `This action updates a #${id} vehicle`;
+    async update(id, updateVehicleDto) {
+        try {
+            const vehicle = await this.vehicleRepository.preload({
+                id,
+                ...updateVehicleDto,
+            });
+            if (!vehicle) {
+                throw new common_1.NotFoundException(`Vehículo con ID ${id} no encontrado`);
+            }
+            return await this.vehicleRepository.save(vehicle);
+        }
+        catch (error) {
+            this.exceptionService.handleDBExceptions(error);
+        }
     }
     remove(id) {
         return `This action removes a #${id} vehicle`;

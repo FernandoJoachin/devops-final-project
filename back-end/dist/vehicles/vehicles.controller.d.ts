@@ -7,6 +7,6 @@ export declare class VehiclesController {
     create(createVehicleDto: CreateVehicleDto): Promise<import("./entities").Vehicle>;
     findAll(): Promise<import("./entities").Vehicle[]>;
     findOne(id: string): string;
-    update(id: string, updateVehicleDto: UpdateVehicleDto): string;
+    update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<import("./entities").Vehicle>;
     remove(id: string): string;
 }
