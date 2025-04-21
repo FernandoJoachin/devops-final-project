@@ -34,18 +34,18 @@ let DriversService = class DriversService {
         }
     }
     findAll() {
-        return `This action returns all drivers`;
-    }
-    async findOne(id) {
         try {
-            const driver = await this.driverRepository.findOneBy({ id });
-            if (!driver)
-                throw new common_1.NotFoundException(`Conductor con ID ${id} no encontrado`);
-            return driver;
+            return this.driverRepository.find();
         }
         catch (error) {
             this.exceptionService.handleDBExceptions(error);
         }
+    }
+    async findOne(id) {
+        const driver = await this.driverRepository.findOneBy({ id });
+        if (!driver)
+            this.exceptionService.throwNotFound("Driver", id);
+        return driver;
     }
     update(id, updateDriverDto) {
         return `This action updates a #${id} driver`;

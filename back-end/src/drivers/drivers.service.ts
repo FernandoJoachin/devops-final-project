@@ -26,7 +26,11 @@ export class DriversService {
   }
 
   findAll() {
-    return `This action returns all drivers`;
+    try {
+      return this.driverRepository.find();
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error);
+    }
   }
 
   async findOne(id: string) {
