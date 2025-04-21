@@ -1,7 +1,8 @@
 import { Driver } from "src/drivers/entities";
 import { Vehicle } from "src/vehicles/entities";
-import { Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
+@Entity()
 export class AssignmentHistory {
   @PrimaryGeneratedColumn('uuid')
   id: string;

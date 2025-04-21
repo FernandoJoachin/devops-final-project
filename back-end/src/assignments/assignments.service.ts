@@ -28,14 +28,14 @@ export class AssignmentsService {
     const { vehicleId, driverId } = createAssignmentDto;
 
     const assignedDriver = await this.driverService.findOne(driverId);
-    if (assignedDriver.assigned) {
-      this.exceptionService.throwConflictException("Driver", assignedDriver.id)
-    }
+    if (assignedDriver.assigned) 
+      this.exceptionService.throwConflictException("Driver", assignedDriver.id);
+    
     
     const assignedVehicle = await this.vehicleService.findOne(vehicleId);
-    if (assignedVehicle.assigned) {
-      this.exceptionService.throwConflictException("Vehicle", assignedVehicle.id)
-    }
+    if (assignedVehicle.assigned) 
+      this.exceptionService.throwConflictException("Vehicle", assignedVehicle.id);
+    
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

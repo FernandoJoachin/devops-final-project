@@ -34,9 +34,9 @@ export class Driver {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @OneToOne(() => Assignment, assignment => assignment.vehicle)
+  @OneToOne(() => Assignment, assignment => assignment.driver)
   assignment: Assignment;
 
-  @OneToMany(() => AssignmentHistory, assignmentHistory => assignmentHistory.vehicle)
+  @OneToMany(() => AssignmentHistory, assignmentHistory => assignmentHistory.driver)
   assignmentHistory: AssignmentHistory[];
 }
