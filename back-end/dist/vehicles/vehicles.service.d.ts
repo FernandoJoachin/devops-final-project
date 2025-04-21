@@ -9,7 +9,7 @@ export declare class VehiclesService {
     constructor(vehicleRepository: Repository<Vehicle>, exceptionService: ExceptionService);
     create(createVehicleDto: CreateVehicleDto): Promise<Vehicle>;
     findAll(): Promise<Vehicle[]>;
-    findOne(id: string): string;
+    findOne(id: string): Promise<Vehicle>;
     update(id: string, updateVehicleDto: UpdateVehicleDto): Promise<Vehicle>;
-    remove(id: string): string;
+    remove(id: string): Promise<void>;
 }

@@ -41,26 +41,29 @@ let VehiclesService = class VehiclesService {
             this.exceptionService.handleDBExceptions(error);
         }
     }
-    findOne(id) {
-        return `This action returns a #${id} vehicle`;
+    async findOne(id) {
+        const vehicle = await this.vehicleRepository.findOneBy({ id });
+        if (!vehicle)
+            this.exceptionService.throwNotFound('Vehicle', id);
+        return vehicle;
     }
     async update(id, updateVehicleDto) {
+        const vehicle = await this.vehicleRepository.preload({
+            id,
+            ...updateVehicleDto,
+        });
+        if (!vehicle)
+            this.exceptionService.throwNotFound("Vehicle", id);
         try {
-            const vehicle = await this.vehicleRepository.preload({
-                id,
-                ...updateVehicleDto,
-            });
-            if (!vehicle) {
-                throw new common_1.NotFoundException(`Vehículo con ID ${id} no encontrado`);
-            }
             return await this.vehicleRepository.save(vehicle);
         }
         catch (error) {
             this.exceptionService.handleDBExceptions(error);
         }
     }
-    remove(id) {
-        return `This action removes a #${id} vehicle`;
+    async remove(id) {
+        const vehicle = await this.findOne(id);
+        await this.vehicleRepository.remove(vehicle);
     }
 };
 exports.VehiclesService = VehiclesService;
