@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,17 +25,35 @@ export class VehiclesService {
     }
   }
 
-  findAll() {
-    return `This action returns all vehicles`;
+  async findAll() {
+    try {
+      return this.vehicleRepository.find();
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error)
+    }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} vehicle`;
+  async findOne(id : string) {
+    const vehicle = await this.vehicleRepository.findOneBy({ id });
+    if(!vehicle) this.exceptionService.throwNotFound('Vehicle', id)
+
+    return vehicle; 
   }
 
-  update(id: string, updateVehicleDto: UpdateVehicleDto) {
-    return `This action updates a #${id} vehicle`;
-  }
+  async update(id: string, updateVehicleDto: UpdateVehicleDto) {
+    const vehicle = await this.vehicleRepository.preload({
+      id,
+      ...updateVehicleDto,
+    });
+
+    if (!vehicle) this.exceptionService.throwNotFound("Vehicle", id);
+
+    try {
+      return await this.vehicleRepository.save(vehicle);
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error);
+    }
+  }  
 
   remove(id: string) {
     return `This action removes a #${id} vehicle`;

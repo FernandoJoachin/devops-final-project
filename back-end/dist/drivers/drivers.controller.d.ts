@@ -6,7 +6,7 @@ export declare class DriversController {
     constructor(driversService: DriversService);
     create(createDriverDto: CreateDriverDto): Promise<import("./entities").Driver>;
     findAll(): string;
-    findOne(id: string): string;
+    findOne(id: string): Promise<import("./entities").Driver>;
     update(id: string, updateDriverDto: UpdateDriverDto): string;
     remove(id: string): string;
 }

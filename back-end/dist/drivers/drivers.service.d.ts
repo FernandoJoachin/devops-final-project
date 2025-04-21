@@ -9,7 +9,7 @@ export declare class DriversService {
     constructor(driverRepository: Repository<Driver>, exceptionService: ExceptionService);
     create(createDriverDto: CreateDriverDto): Promise<Driver>;
     findAll(): string;
-    findOne(id: string): string;
+    findOne(id: string): Promise<Driver>;
     update(id: string, updateDriverDto: UpdateDriverDto): string;
     remove(id: string): string;
 }
