@@ -30,16 +30,10 @@ export class VehiclesService {
   }
 
   async findOne(id : string) {
-    try {
-      const vehicle = await this.vehicleRepository.findOneBy({ id });
+    const vehicle = await this.vehicleRepository.findOneBy({ id });
+    if(!vehicle) this.exceptionService.throwNotFound('Vehicle', id)
 
-      if(!vehicle) 
-        throw new NotFoundException(`Vehículo con ID ${id} no encontrado`);
-
-      return vehicle; 
-    } catch (error) {
-      this.exceptionService.handleDBExceptions(error)
-    }
+    return vehicle; 
   }
 
   update(id: string, updateVehicleDto: UpdateVehicleDto) {
