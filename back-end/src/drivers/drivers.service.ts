@@ -30,16 +30,10 @@ export class DriversService {
   }
 
   async findOne(id: string) {
-    try {
-      const driver = await this.driverRepository.findOneBy({ id });
+    const driver = await this.driverRepository.findOneBy({ id });
+    if(!driver) this.exceptionService.throwNotFound("Driver", id);
 
-      if(!driver) 
-        throw new NotFoundException(`Conductor con ID ${id} no encontrado`);
-
-      return driver; 
-    } catch (error) {
-      this.exceptionService.handleDBExceptions(error)
-    }
+    return driver; 
   }
 
   update(id: string, updateDriverDto: UpdateDriverDto) {
