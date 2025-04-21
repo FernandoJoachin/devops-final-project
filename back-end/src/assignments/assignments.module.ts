@@ -8,12 +8,13 @@ import { Driver } from 'src/drivers/entities';
 import { Vehicle } from 'src/vehicles/entities';
 import { DriversService } from 'src/drivers/drivers.service';
 import { VehiclesService } from 'src/vehicles/vehicles.service';
+import { Route } from 'src/routes/entities';
 
 @Module({
   controllers: [AssignmentsController],
   providers: [AssignmentsService, DriversService, VehiclesService],
   imports: [
-    TypeOrmModule.forFeature([ Assignment, AssignmentHistory, Vehicle, Driver ]),
+    TypeOrmModule.forFeature([ Assignment, AssignmentHistory, Vehicle, Route, Driver ]),
     CommonModule
   ],
   exports: [AssignmentsService]
