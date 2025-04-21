@@ -1,1 +1,0 @@
-export { Vehicle } from './vehicle.entity';
