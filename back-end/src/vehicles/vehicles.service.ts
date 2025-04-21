@@ -25,8 +25,12 @@ export class VehiclesService {
     }
   }
 
-  findAll() {
-    return `This action returns all vehicles`;
+  async findAll() {
+    try {
+      return this.vehicleRepository.find();
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error)
+    }
   }
 
   findOne(id: string) {

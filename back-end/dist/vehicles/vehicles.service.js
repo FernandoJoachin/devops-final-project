@@ -33,8 +33,13 @@ let VehiclesService = class VehiclesService {
             this.exceptionService.handleDBExceptions(error);
         }
     }
-    findAll() {
-        return `This action returns all vehicles`;
+    async findAll() {
+        try {
+            return this.vehicleRepository.find();
+        }
+        catch (error) {
+            this.exceptionService.handleDBExceptions(error);
+        }
     }
     findOne(id) {
         return `This action returns a #${id} vehicle`;

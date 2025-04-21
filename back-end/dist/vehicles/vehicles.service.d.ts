@@ -8,7 +8,7 @@ export declare class VehiclesService {
     private readonly exceptionService;
     constructor(vehicleRepository: Repository<Vehicle>, exceptionService: ExceptionService);
     create(createVehicleDto: CreateVehicleDto): Promise<Vehicle>;
-    findAll(): string;
+    findAll(): Promise<Vehicle[]>;
     findOne(id: string): string;
     update(id: string, updateVehicleDto: UpdateVehicleDto): string;
     remove(id: string): string;

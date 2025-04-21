@@ -5,7 +5,7 @@ export declare class VehiclesController {
     private readonly vehiclesService;
     constructor(vehiclesService: VehiclesService);
     create(createVehicleDto: CreateVehicleDto): Promise<import("./entities").Vehicle>;
-    findAll(): string;
+    findAll(): Promise<import("./entities").Vehicle[]>;
     findOne(id: string): string;
     update(id: string, updateVehicleDto: UpdateVehicleDto): string;
     remove(id: string): string;
