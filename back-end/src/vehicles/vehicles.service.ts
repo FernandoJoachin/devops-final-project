@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,8 +33,11 @@ export class VehiclesService {
     }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} vehicle`;
+  async findOne(id : string) {
+    const vehicle = await this.vehicleRepository.findOneBy({ id });
+    if(!vehicle) this.exceptionService.throwNotFound('Vehicle', id)
+
+    return vehicle; 
   }
 
   update(id: string, updateVehicleDto: UpdateVehicleDto) {
