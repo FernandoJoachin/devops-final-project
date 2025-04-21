@@ -34,16 +34,14 @@ export class VehiclesService {
   }
 
   async update(id: string, updateVehicleDto: UpdateVehicleDto) {
+    const vehicle = await this.vehicleRepository.preload({
+      id,
+      ...updateVehicleDto,
+    });
+
+    if (!vehicle) this.exceptionService.throwNotFound("Vehicle", id);
+
     try {
-      const vehicle = await this.vehicleRepository.preload({
-        id,
-        ...updateVehicleDto,
-      });
-  
-      if (!vehicle) {
-        throw new NotFoundException(`Vehículo con ID ${id} no encontrado`);
-      }
-  
       return await this.vehicleRepository.save(vehicle);
     } catch (error) {
       this.exceptionService.handleDBExceptions(error);
