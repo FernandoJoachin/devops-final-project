@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Invitation } from "./invitation.entity";
 
 @Entity()
 export class User {
@@ -13,4 +14,7 @@ export class User {
 
     @Column('text', { select: false })
     password : string;
+
+    @OneToMany(() => Invitation, (invitation) => invitation.creator)
+    createdInvitations: Invitation[];
 }
