@@ -55,7 +55,8 @@ export class VehiclesService {
     }
   }  
 
-  remove(id: string) {
-    return `This action removes a #${id} vehicle`;
+  async remove(id: string) {
+    const vehicle = await this.findOne(id);
+    await this.vehicleRepository.remove(vehicle);
   }
 }
