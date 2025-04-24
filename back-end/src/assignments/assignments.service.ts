@@ -77,8 +77,11 @@ export class AssignmentsService {
     return `This action returns all assignments`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} assignment`;
+  async findOne(id : string) {
+    const assignment = await this.assignmentRepository.findOneBy({ id });
+    if(!assignment) this.exceptionService.throwNotFound('Assignment', id)
+
+    return assignment; 
   }
 
   update(id: string, updateAssignmentDto: UpdateAssignmentDto) {
