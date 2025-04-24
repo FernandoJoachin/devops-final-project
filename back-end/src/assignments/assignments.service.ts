@@ -114,57 +114,57 @@ export class AssignmentsService {
     await queryRunner.startTransaction();
 
     try {
-        // Update the status of the previous resources
-        if (driverId && driverId !== existingAssignment.driver.id) {
-          existingAssignment.driver.assigned = false;
-          await queryRunner.manager.save(Driver, existingAssignment.driver);
-        }
-        
-        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
-          existingAssignment.vehicle.assigned = false;
-          await queryRunner.manager.save(Vehicle, existingAssignment.vehicle);
-        }
-
-        // Get the new resources if they changed
-        const newDriver = driverId ? await this.driverService.findOne(driverId) : existingAssignment.driver;
-        const newVehicle = vehicleId ? await this.vehicleService.findOne(vehicleId) : existingAssignment.vehicle;
-
-        // Update statuses of new resources
-        if (driverId && driverId !== existingAssignment.driver.id) {
-          newDriver.assigned = true;
-          await queryRunner.manager.save(Driver, newDriver);
-        }
+      // Update the status of the previous resources
+      if (driverId && driverId !== existingAssignment.driver.id) {
+        existingAssignment.driver.assigned = false;
+        await queryRunner.manager.save(Driver, existingAssignment.driver);
+      }
       
-        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
-          newVehicle.assigned = true;
-          await queryRunner.manager.save(Vehicle, newVehicle);
-        }
+      if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+        existingAssignment.vehicle.assigned = false;
+        await queryRunner.manager.save(Vehicle, existingAssignment.vehicle);
+      }
 
-        // Update the assignment
-        existingAssignment.driver = newDriver;
-        existingAssignment.vehicle = newVehicle;
-        existingAssignment.driver = newDriver;
-        existingAssignment.vehicle = newVehicle;
-        if (assignmentDate) {
-          existingAssignment.assignmentDate = assignmentDate;
-        }
-        await queryRunner.manager.save(existingAssignment);
+      // Get the new resources if they changed
+      const newDriver = driverId ? await this.driverService.findOne(driverId) : existingAssignment.driver;
+      const newVehicle = vehicleId ? await this.vehicleService.findOne(vehicleId) : existingAssignment.vehicle;
 
-        // Record in history
-        const assignmentHistory = this.assignmentHistoryRepository.create({
-          driver: newDriver,
-          vehicle: newVehicle
-        });
-        await queryRunner.manager.save(AssignmentHistory, assignmentHistory);
+      // Update statuses of new resources
+      if (driverId && driverId !== existingAssignment.driver.id) {
+        newDriver.assigned = true;
+        await queryRunner.manager.save(Driver, newDriver);
+      }
+    
+      if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+        newVehicle.assigned = true;
+        await queryRunner.manager.save(Vehicle, newVehicle);
+      }
 
-        await queryRunner.commitTransaction();
-        await queryRunner.release();
+      // Update the assignment
+      existingAssignment.driver = newDriver;
+      existingAssignment.vehicle = newVehicle;
+      existingAssignment.driver = newDriver;
+      existingAssignment.vehicle = newVehicle;
+      if (assignmentDate) {
+        existingAssignment.assignmentDate = assignmentDate;
+      }
+      await queryRunner.manager.save(existingAssignment);
 
-        return existingAssignment;
+      // Record in history
+      const assignmentHistory = this.assignmentHistoryRepository.create({
+        driver: newDriver,
+        vehicle: newVehicle
+      });
+      await queryRunner.manager.save(AssignmentHistory, assignmentHistory);
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return existingAssignment;
     } catch (error) {
-        await queryRunner.rollbackTransaction();
-        await queryRunner.release();
-        this.exceptionService.handleDBExceptions(error);
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      this.exceptionService.handleDBExceptions(error);
     }
   }
 
