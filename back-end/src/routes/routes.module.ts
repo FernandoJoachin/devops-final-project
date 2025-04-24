@@ -6,7 +6,6 @@ import { Route } from './entities';
 import { CommonModule } from 'src/common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AssignmentsService } from 'src/assignments/assignments.service';
-import { AssignmentsModule } from 'src/assignments/assignments.module';
 import { DriversService } from 'src/drivers/drivers.service';
 import { Vehicle } from 'src/vehicles/entities';
 import { Driver } from 'src/drivers/entities';

@@ -4,7 +4,6 @@ import { UpdateRouteDto } from './dto/update-route.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Route } from './entities';
 import { Repository } from 'typeorm';
-import { Assignment } from 'src/assignments/entities';
 import { ExceptionService } from 'src/common/exception.service';
 import { AssignmentsService } from 'src/assignments/assignments.service';
 
@@ -13,29 +12,28 @@ export class RoutesService {
   constructor(
     @InjectRepository(Route)
     private readonly routeRepository: Repository<Route>,
-    @InjectRepository(Assignment)
     private readonly assignmentsService: AssignmentsService,
     private readonly exceptionService: ExceptionService
     
   ) {}
   
   async create(createRouteDto: CreateRouteDto) {
-    const { assignmentId, routeDate } = createRouteDto;
+    const { assignmentId, ...routeData } = createRouteDto;
 
     const assignment = await this.assignmentsService.findOne(assignmentId);
-    if (!assignment) this.exceptionService.throwNotFound("Assignment", assignmentId);
 
     const existingRoute = await this.routeRepository.findOne({
-      where: { assignment: { id: assignmentId }, routeDate },
+      where: { assignment: { id: assignmentId }, routeDate: routeData.routeDate },
     });
 
     if (existingRoute)
       throw new ConflictException('A route already exists for this assignment on the specified date');
-    
-
-    const route = this.routeRepository.create(createRouteDto);
 
     try {
+      const route = this.routeRepository.create({
+        ...routeData, 
+        assignment 
+      });
       return this.routeRepository.save(route);
     } catch (error) {
       this.exceptionService.handleDBExceptions(error);
