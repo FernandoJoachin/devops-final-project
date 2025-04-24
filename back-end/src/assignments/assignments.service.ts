@@ -73,8 +73,12 @@ export class AssignmentsService {
     }
   }
 
-  findAll() {
-    return `This action returns all assignments`;
+  async findAll() {
+    try {
+      return this.assignmentRepository.find();
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error)
+    }
   }
 
   async findOne(id : string) {
