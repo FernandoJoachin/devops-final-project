@@ -78,7 +78,10 @@ export class AssignmentsService {
   }
 
   async findOne(id : string) {
-    const assignment = await this.assignmentRepository.findOneBy({ id });
+    const assignment = await this.assignmentRepository.findOne({
+      where: { id },
+      relations: ['driver', 'vehicle']
+    });
     if(!assignment) this.exceptionService.throwNotFound('Assignment', id)
 
     return assignment; 
@@ -87,10 +90,10 @@ export class AssignmentsService {
   async update(id: string, updateAssignmentDto: UpdateAssignmentDto) {
     const { vehicleId, driverId, assignmentDate } = updateAssignmentDto;
 
-    // Buscar la asignación existente
+    // Find existing assignment
     const existingAssignment = await this.findOne(id);
 
-    // Verificar si se está cambiando el conductor
+    // Check if the driver is being changed
     if (driverId && driverId !== existingAssignment.driver.id) {
       const newDriver = await this.driverService.findOne(driverId);
       if (newDriver.assigned) {
@@ -98,7 +101,7 @@ export class AssignmentsService {
       }
     }
 
-    // Verificar si se está cambiando el vehículo
+    // Check if the vehicle is being changed
     if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
       const newVehicle = await this.vehicleService.findOne(vehicleId);
       if (newVehicle.assigned) {
@@ -111,7 +114,7 @@ export class AssignmentsService {
     await queryRunner.startTransaction();
 
     try {
-        // Actualizar estados de los recursos anteriores
+        // Update the status of the previous resources
         if (driverId && driverId !== existingAssignment.driver.id) {
           existingAssignment.driver.assigned = false;
           await queryRunner.manager.save(Driver, existingAssignment.driver);
@@ -122,11 +125,22 @@ export class AssignmentsService {
           await queryRunner.manager.save(Vehicle, existingAssignment.vehicle);
         }
 
-        // Obtener los nuevos recursos si cambiaron
+        // Get the new resources if they changed
         const newDriver = driverId ? await this.driverService.findOne(driverId) : existingAssignment.driver;
         const newVehicle = vehicleId ? await this.vehicleService.findOne(vehicleId) : existingAssignment.vehicle;
 
-        // Actualizar la asignación
+        // Update statuses of new resources
+        if (driverId && driverId !== existingAssignment.driver.id) {
+          newDriver.assigned = true;
+          await queryRunner.manager.save(Driver, newDriver);
+        }
+      
+        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+          newVehicle.assigned = true;
+          await queryRunner.manager.save(Vehicle, newVehicle);
+        }
+
+        // Update the assignment
         existingAssignment.driver = newDriver;
         existingAssignment.vehicle = newVehicle;
         existingAssignment.driver = newDriver;
@@ -136,18 +150,7 @@ export class AssignmentsService {
         }
         await queryRunner.manager.save(existingAssignment);
 
-        // Actualizar estados de los nuevos recursos
-        if (driverId && driverId !== existingAssignment.driver.id) {
-          newDriver.assigned = true;
-          await queryRunner.manager.save(Driver, newDriver);
-        }
-        
-        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
-          newVehicle.assigned = true;
-          await queryRunner.manager.save(Vehicle, newVehicle);
-        }
-
-        // Registrar en el historial
+        // Record in history
         const assignmentHistory = this.assignmentHistoryRepository.create({
           driver: newDriver,
           vehicle: newVehicle
