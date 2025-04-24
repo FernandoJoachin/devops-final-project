@@ -6,6 +6,7 @@ import { CommonModule } from './common/common.module';
 import { DriversModule } from './drivers/drivers.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { RoutesModule } from './routes/routes.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RoutesModule } from './routes/routes.module';
     DriversModule,
     AssignmentsModule,
     RoutesModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
