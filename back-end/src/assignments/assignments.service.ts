@@ -78,14 +78,94 @@ export class AssignmentsService {
   }
 
   async findOne(id : string) {
-    const assignment = await this.assignmentRepository.findOneBy({ id });
+    const assignment = await this.assignmentRepository.findOne({
+      where: { id },
+      relations: ['driver', 'vehicle']
+    });
     if(!assignment) this.exceptionService.throwNotFound('Assignment', id)
 
     return assignment; 
   }
 
-  update(id: string, updateAssignmentDto: UpdateAssignmentDto) {
-    return `This action updates a #${id} assignment`;
+  async update(id: string, updateAssignmentDto: UpdateAssignmentDto) {
+    const { vehicleId, driverId, assignmentDate } = updateAssignmentDto;
+
+    // Find existing assignment
+    const existingAssignment = await this.findOne(id);
+
+    // Check if the driver is being changed
+    if (driverId && driverId !== existingAssignment.driver.id) {
+      const newDriver = await this.driverService.findOne(driverId);
+      if (newDriver.assigned) {
+        this.exceptionService.throwConflictException("Driver", newDriver.id);
+      }
+    }
+
+    // Check if the vehicle is being changed
+    if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+      const newVehicle = await this.vehicleService.findOne(vehicleId);
+      if (newVehicle.assigned) {
+        this.exceptionService.throwConflictException("Vehicle", newVehicle.id);
+      }
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+        // Update the status of the previous resources
+        if (driverId && driverId !== existingAssignment.driver.id) {
+          existingAssignment.driver.assigned = false;
+          await queryRunner.manager.save(Driver, existingAssignment.driver);
+        }
+        
+        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+          existingAssignment.vehicle.assigned = false;
+          await queryRunner.manager.save(Vehicle, existingAssignment.vehicle);
+        }
+
+        // Get the new resources if they changed
+        const newDriver = driverId ? await this.driverService.findOne(driverId) : existingAssignment.driver;
+        const newVehicle = vehicleId ? await this.vehicleService.findOne(vehicleId) : existingAssignment.vehicle;
+
+        // Update statuses of new resources
+        if (driverId && driverId !== existingAssignment.driver.id) {
+          newDriver.assigned = true;
+          await queryRunner.manager.save(Driver, newDriver);
+        }
+      
+        if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
+          newVehicle.assigned = true;
+          await queryRunner.manager.save(Vehicle, newVehicle);
+        }
+
+        // Update the assignment
+        existingAssignment.driver = newDriver;
+        existingAssignment.vehicle = newVehicle;
+        existingAssignment.driver = newDriver;
+        existingAssignment.vehicle = newVehicle;
+        if (assignmentDate) {
+          existingAssignment.assignmentDate = assignmentDate;
+        }
+        await queryRunner.manager.save(existingAssignment);
+
+        // Record in history
+        const assignmentHistory = this.assignmentHistoryRepository.create({
+          driver: newDriver,
+          vehicle: newVehicle
+        });
+        await queryRunner.manager.save(AssignmentHistory, assignmentHistory);
+
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+
+        return existingAssignment;
+    } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        this.exceptionService.handleDBExceptions(error);
+    }
   }
 
   remove(id: string) {
