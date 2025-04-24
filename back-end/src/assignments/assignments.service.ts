@@ -168,7 +168,8 @@ export class AssignmentsService {
     }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} assignment`;
+  async remove(id: string) {
+    const assignment = await this.findOne(id);
+    await this.assignmentRepository.remove(assignment);
   }
 }
