@@ -48,10 +48,21 @@ export class RoutesService {
     return `This action returns a #${id} route`;
   }
 
-  update(id: string, updateRouteDto: UpdateRouteDto) {
-    return `This action updates a #${id} route`;
-  }
+  async update(id: string, updateRouteDto: UpdateRouteDto) {
+    const route = await this.routeRepository.preload({
+      id,
+      ...updateRouteDto,
+    });
 
+    if (!route) this.exceptionService.throwNotFound("Route", id);
+
+    try {
+      return await this.routeRepository.save(route);
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error);
+    }
+  }  
+  
   remove(id: string) {
     return `This action removes a #${id} route`;
   }
