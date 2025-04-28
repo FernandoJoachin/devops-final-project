@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn} from 'typeorm';
-
+import { Assignment, AssignmentHistory } from 'src/assignments/entities';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, OneToOne, OneToMany} from 'typeorm';
 @Entity()
 export class Vehicle {
     @PrimaryGeneratedColumn('uuid')
@@ -31,4 +31,14 @@ export class Vehicle {
   
     @Column({ default: false })
     assigned: boolean;
+
+    // Soft delete
+    @DeleteDateColumn()
+    deletedAt: Date;
+
+    @OneToOne(() => Assignment, assignment => assignment.vehicle)
+    assignment: Assignment;
+
+    @OneToMany(() => AssignmentHistory, assignmentHistory => assignmentHistory.vehicle)
+    assignmentHistory: AssignmentHistory[];
 }

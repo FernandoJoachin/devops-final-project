@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +21,7 @@ export class VehiclesService {
       
       return vehicle;
     } catch (error) {
-      this.exceptionService.handleDBExceptions(error)
+      this.exceptionService.handleDBExceptions(error);
     }
   }
 
@@ -55,7 +55,8 @@ export class VehiclesService {
     }
   }  
 
-  remove(id: string) {
-    return `This action removes a #${id} vehicle`;
+  async remove(id: string) {
+    const vehicle = await this.findOne(id);
+    await this.vehicleRepository.remove(vehicle);
   }
 }

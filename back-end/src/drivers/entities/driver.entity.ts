@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Assignment, AssignmentHistory } from 'src/assignments/entities';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, OneToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class Driver {
@@ -28,4 +29,14 @@ export class Driver {
 
   @Column({ default: false })
   assigned: boolean;
+
+  // Soft delete
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @OneToOne(() => Assignment, assignment => assignment.driver)
+  assignment: Assignment;
+
+  @OneToMany(() => AssignmentHistory, assignmentHistory => assignmentHistory.driver)
+  assignmentHistory: AssignmentHistory[];
 }

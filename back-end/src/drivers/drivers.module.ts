@@ -4,12 +4,13 @@ import { DriversController } from './drivers.controller';
 import { Driver } from './entities';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from 'src/common/common.module';
+import { Assignment } from 'src/assignments/entities';
 
 @Module({
   controllers: [DriversController],
   providers: [DriversService],
   imports: [
-    TypeOrmModule.forFeature([ Driver ]),
+    TypeOrmModule.forFeature([ Driver, Assignment ]),
     CommonModule
   ],
 })

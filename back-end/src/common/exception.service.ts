@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class ExceptionService {
@@ -15,5 +15,9 @@ export class ExceptionService {
 
   throwNotFound(resource: string, id: string): never {
     throw new NotFoundException(`${resource} with ID ${id} not found`);
+  }
+
+  throwConflictException(resource: string, id: string){
+    throw new ConflictException(`The ${resource} with ID ${id} has already been assigned`)
   }
 }
