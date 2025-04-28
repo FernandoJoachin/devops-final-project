@@ -55,7 +55,8 @@ export class DriversService {
       }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} driver`;
+  async remove(id: string) {
+    const driver = await this.findOne(id);
+    await this.driverRepository.remove(driver);
   }
 }
