@@ -44,11 +44,18 @@ export class RoutesService {
     return `This action returns all routes`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} route`;
+  async findOne(id : string) {
+    const route = await this.routeRepository.findOneBy({ id });
+    if(!route) this.exceptionService.throwNotFound('Route', id)
+
+    return route; 
   }
 
   async update(id: string, updateRouteDto: UpdateRouteDto) {
+    const validRoute = await this.findOne(id);
+
+    if(!validRoute) this.exceptionService.throwNotFound("Route", id);
+
     const route = await this.routeRepository.preload({
       id,
       ...updateRouteDto,
@@ -63,7 +70,8 @@ export class RoutesService {
     }
   }  
   
-  remove(id: string) {
-    return `This action removes a #${id} route`;
+  async remove(id: string) {
+    const route = await this.findOne(id);
+    await this.routeRepository.remove(route);
   }
 }
