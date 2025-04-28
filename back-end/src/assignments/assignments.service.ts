@@ -75,7 +75,9 @@ export class AssignmentsService {
 
   async findAll() {
     try {
-      return this.assignmentRepository.find();
+      return this.assignmentRepository.find({
+         relations: ['vehicle', 'driver'],
+      });
     } catch (error) {
       this.exceptionService.handleDBExceptions(error)
     }
