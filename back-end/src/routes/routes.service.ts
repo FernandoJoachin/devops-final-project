@@ -44,8 +44,11 @@ export class RoutesService {
     return `This action returns all routes`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} route`;
+  async findOne(id : string) {
+    const route = await this.routeRepository.findOneBy({ id });
+    if(!route) this.exceptionService.throwNotFound('Route', id)
+
+    return route; 
   }
 
   update(id: string, updateRouteDto: UpdateRouteDto) {
