@@ -52,7 +52,8 @@ export class RoutesService {
     return `This action updates a #${id} route`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} route`;
+  async remove(id: string) {
+    const route = await this.findOne(id);
+    await this.routeRepository.remove(route);
   }
 }
