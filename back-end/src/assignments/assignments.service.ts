@@ -143,8 +143,6 @@ export class AssignmentsService {
       // Update the assignment
       existingAssignment.driver = newDriver;
       existingAssignment.vehicle = newVehicle;
-      existingAssignment.driver = newDriver;
-      existingAssignment.vehicle = newVehicle;
       if (assignmentDate) {
         existingAssignment.assignmentDate = assignmentDate;
       }

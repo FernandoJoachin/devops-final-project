@@ -51,7 +51,10 @@ export class RoutesService {
   }
 
   async findOne(id : string) {
-    const route = await this.routeRepository.findOneBy({ id });
+    const route = await this.routeRepository.findOne({
+      where: { id },
+      relations: ['assignment', 'assignment.vehicle', 'assignment.driver'],
+    });
     if(!route) this.exceptionService.throwNotFound('Route', id)
 
     return route; 
