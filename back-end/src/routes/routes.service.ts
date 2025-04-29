@@ -40,12 +40,21 @@ export class RoutesService {
     }
   }
 
-  findAll() {
-    return `This action returns all routes`;
+  async findAll() {
+    try {
+      return await this.routeRepository.find({
+        relations: ['assignment', 'assignment.vehicle', 'assignment.driver'],
+      });
+    } catch (error) {
+      this.exceptionService.handleDBExceptions(error);
+    };
   }
 
   async findOne(id : string) {
-    const route = await this.routeRepository.findOneBy({ id });
+    const route = await this.routeRepository.findOne({
+      where: { id },
+      relations: ['assignment', 'assignment.vehicle', 'assignment.driver'],
+    });
     if(!route) this.exceptionService.throwNotFound('Route', id)
 
     return route; 
