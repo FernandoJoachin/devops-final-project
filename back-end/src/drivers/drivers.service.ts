@@ -40,8 +40,19 @@ export class DriversService {
     return driver; 
   }
 
-  update(id: string, updateDriverDto: UpdateDriverDto) {
-    return `This action updates a #${id} driver`;
+  async update(id: string, updateDriverDto: UpdateDriverDto) {
+    const driver = await this.driverRepository.preload({
+      id,
+      ...updateDriverDto,
+      });
+      
+      if (!driver) this.exceptionService.throwNotFound("Driver", id);
+      
+      try {
+        return await this.driverRepository.save(driver);
+      } catch (error) {
+        this.exceptionService.handleDBExceptions(error);
+      }
   }
 
   remove(id: string) {
