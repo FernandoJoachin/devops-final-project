@@ -143,8 +143,6 @@ export class AssignmentsService {
       // Update the assignment
       existingAssignment.driver = newDriver;
       existingAssignment.vehicle = newVehicle;
-      existingAssignment.driver = newDriver;
-      existingAssignment.vehicle = newVehicle;
       if (assignmentDate) {
         existingAssignment.assignmentDate = assignmentDate;
       }
@@ -170,6 +168,36 @@ export class AssignmentsService {
 
   async remove(id: string) {
     const assignment = await this.findOne(id);
-    await this.assignmentRepository.remove(assignment);
+    if(!assignment) this.exceptionService.throwNotFound('Assignment', id)
+
+    const driver = await this.driverService.findOne(assignment.driver.id);
+
+    if(!assignment) this.exceptionService.throwNotFound('Diver', assignment.driver.id)
+
+    const vehicle = await this.vehicleService.findOne(assignment.vehicle.id);
+
+    if(!assignment) this.exceptionService.throwNotFound('Vehicle', assignment.vehicle.id)
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      //Change the "assigned" value of the related driver and vehicle
+      driver.assigned = false;
+      await queryRunner.manager.save(Driver, driver);
+      vehicle.assigned = false;
+      await queryRunner.manager.save(Vehicle, vehicle);
+
+      await this.assignmentRepository.remove(assignment);
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      this.exceptionService.handleDBExceptions(error);
+    }
+    
   }
 }
