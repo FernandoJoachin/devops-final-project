@@ -52,9 +52,8 @@ export class RoutesService {
   }
 
   async update(id: string, updateRouteDto: UpdateRouteDto) {
-    const validRoute = await this.findOne(id);
 
-    if(!validRoute) this.exceptionService.throwNotFound("Route", id);
+    if(updateRouteDto.assignmentId) this.assignmentsService.findOne(updateRouteDto.assignmentId);
 
     const route = await this.routeRepository.preload({
       id,
