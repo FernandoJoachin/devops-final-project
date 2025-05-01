@@ -4,6 +4,7 @@ import { VehiclesController } from './vehicles.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vehicle } from './entities';
 import { CommonModule } from 'src/common/common.module';
+import { AuthModule } from 'src/auth/auth.module';
 import { Assignment } from 'src/assignments/entities';
 
 @Module({
@@ -11,7 +12,8 @@ import { Assignment } from 'src/assignments/entities';
   providers: [VehiclesService],
   imports: [
     TypeOrmModule.forFeature([ Vehicle, Assignment ]),
-    CommonModule
+    CommonModule,
+    AuthModule
   ],
 })
 export class VehiclesModule {}
