@@ -3,6 +3,7 @@ import { AssignmentsService } from './assignments.service';
 import { AssignmentsController } from './assignments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from 'src/common/common.module';
+import { AuthModule } from 'src/auth/auth.module';
 import { Assignment, AssignmentHistory } from './entities';
 import { Driver } from 'src/drivers/entities';
 import { Vehicle } from 'src/vehicles/entities';
@@ -15,7 +16,8 @@ import { Route } from 'src/routes/entities';
   providers: [AssignmentsService, DriversService, VehiclesService],
   imports: [
     TypeOrmModule.forFeature([ Assignment, AssignmentHistory, Vehicle, Route, Driver ]),
-    CommonModule
+    CommonModule,
+    AuthModule
   ],
   exports: [AssignmentsService]
 })
