@@ -4,6 +4,7 @@ import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entities';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
   }
 
   @Get('invitations')
-  @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard)
   async createInvitation(
     @GetUser() user : User
   ) {
