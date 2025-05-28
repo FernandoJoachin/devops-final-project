@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { ExceptionService } from 'src/common/exception.service';
 import { AssignmentsService } from 'src/assignments/assignments.service';
 import { winstonLogger } from 'src/common/utils/loggers';
+import { Between } from 'typeorm';
 
 @Injectable()
 export class RoutesService {
@@ -57,6 +58,31 @@ export class RoutesService {
       return routes;
     } catch (error) {
       winstonLogger.error(`[RoutesService] Error while retrieving routes: ${error.message}`);
+      this.exceptionService.handleDBExceptions(error);
+    }
+  }
+
+  async findToday() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    winstonLogger.debug(`[RoutesService] Searching for today's routes between ${start.toISOString()} and ${end.toISOString()}`);
+
+    try {
+      const routes = await this.routeRepository.find({
+        where: {
+          routeDate: Between(start, end),
+        },
+        relations: ['assignment', 'assignment.vehicle', 'assignment.driver'],
+      });
+
+      winstonLogger.info(`[RoutesService] Found ${routes.length} route(s) for today`);
+      return routes;
+    } catch (error) {
+      winstonLogger.error(`[RoutesService] Error retrieving today's routes: ${error.message}`);
       this.exceptionService.handleDBExceptions(error);
     }
   }

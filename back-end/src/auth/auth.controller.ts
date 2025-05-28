@@ -27,4 +27,10 @@ export class AuthController {
   ) {
     return this.authService.createInvitation(user);
   }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  findAll() {
+    return this.authService.findAll();
+  }
 }
