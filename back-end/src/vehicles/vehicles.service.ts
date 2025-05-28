@@ -72,9 +72,14 @@ export class VehiclesService {
   }
 
   async remove(id: string) {
-    winstonLogger.debug(`[VehicleService] Deleting vehicle with ID: ${id}`);
-    const vehicle = await this.findOne(id);
-    await this.vehicleRepository.remove(vehicle);
-    winstonLogger.info(`[VehicleService] Vehicle deleted with ID: ${id}`);
+    try {
+      winstonLogger.debug(`[VehicleService] Deleting vehicle with ID: ${id}`);
+      const vehicle = await this.findOne(id);
+      await this.vehicleRepository.remove(vehicle);
+      winstonLogger.info(`[VehicleService] Vehicle deleted with ID: ${id}`);
+    } catch (error) {
+      winstonLogger.error(`[VehicleService] Error while deleting vehicle: ${error.message}`);
+      this.exceptionService.handleDBExceptions(error);
+    }
   }
 }

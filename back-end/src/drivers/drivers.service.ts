@@ -73,9 +73,14 @@ export class DriversService {
   }
 
   async remove(id: string) {
-    winstonLogger.debug(`[DriversService] Deleting driver with ID: ${id}`);
-    const driver = await this.findOne(id);
-    await this.driverRepository.remove(driver);
-    winstonLogger.info(`[DriversService] Driver deleted with ID: ${id}`);
+    try {
+      winstonLogger.debug(`[DriversService] Deleting driver with ID: ${id}`);
+      const driver = await this.findOne(id);
+      await this.driverRepository.remove(driver);
+      winstonLogger.info(`[DriversService] Driver deleted with ID: ${id}`);
+    } catch (error) {
+      winstonLogger.error(`[DriversService] Error while deleting driver: ${error.message}`);
+      this.exceptionService.handleDBExceptions(error);
+    }
   }
 }

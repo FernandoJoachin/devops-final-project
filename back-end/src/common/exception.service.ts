@@ -1,8 +1,11 @@
 import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ExceptionService {
   private readonly logger = new Logger(ExceptionService.name);
+
+  constructor(private readonly configService: ConfigService) {}
 
   handleDBExceptions(error: any): never {
     if (error.code === '23505') {
@@ -10,7 +13,9 @@ export class ExceptionService {
     }
 
     this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
+    const isDev = this.configService.get<string>('NODE_ENV') !== 'production';
+    const message = isDev ? 'Unexpected error, check server logs' : 'Internal server error';
+    throw new InternalServerErrorException(message);
   }
 
   throwNotFound(resource: string, id: string): never {

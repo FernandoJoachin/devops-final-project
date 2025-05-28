@@ -105,9 +105,14 @@ export class RoutesService {
   }
 
   async remove(id: string) {
-    winstonLogger.debug(`[RoutesService] Deleting route with ID: ${id}`);
-    const route = await this.findOne(id);
-    await this.routeRepository.remove(route);
-    winstonLogger.info(`[RoutesService] Route deleted with ID: ${id}`);
+    try {
+      winstonLogger.debug(`[RoutesService] Deleting route with ID: ${id}`);
+      const route = await this.findOne(id);
+      await this.routeRepository.remove(route);
+      winstonLogger.info(`[RoutesService] Route deleted with ID: ${id}`);
+    } catch (error) {
+      winstonLogger.error(`[RoutesService] Error while deleting route: ${error.message}`);
+      this.exceptionService.handleDBExceptions(error);
+    }
   }
 }
