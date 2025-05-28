@@ -19,8 +19,8 @@ export class AssignmentsService {
     @InjectRepository(AssignmentHistory)
     private readonly assignmentHistoryRepository: Repository<AssignmentHistory>,
     private readonly dataSource: DataSource,
-    private readonly driverService: DriversService,
-    private readonly vehicleService: VehiclesService,
+    private readonly driversService: DriversService,
+    private readonly vehiclesService: VehiclesService,
     private readonly exceptionService: ExceptionService,
   ) {}
 
@@ -29,13 +29,13 @@ export class AssignmentsService {
 
     winstonLogger.info(`[AssignmentsService] Creating new assignment: driverId=${driverId}, vehicleId=${vehicleId}`);
 
-    const assignedDriver = await this.driverService.findOne(driverId);
+    const assignedDriver = await this.driversService.findOne(driverId);
     if (assignedDriver.assigned) {
       winstonLogger.warn(`[AssignmentsService] Driver ${driverId} is already assigned`);
       this.exceptionService.throwConflictException('Driver', assignedDriver.id);
     }
 
-    const assignedVehicle = await this.vehicleService.findOne(vehicleId);
+    const assignedVehicle = await this.vehiclesService.findOne(vehicleId);
     if (assignedVehicle.assigned) {
       winstonLogger.warn(`[AssignmentsService] Vehicle ${vehicleId} is already assigned`);
       this.exceptionService.throwConflictException('Vehicle', assignedVehicle.id);
@@ -112,7 +112,7 @@ export class AssignmentsService {
     const existingAssignment = await this.findOne(id);
 
     if (driverId && driverId !== existingAssignment.driver.id) {
-      const newDriver = await this.driverService.findOne(driverId);
+      const newDriver = await this.driversService.findOne(driverId);
       if (newDriver.assigned) {
         winstonLogger.warn(`[AssignmentsService] New driver ${driverId} is already assigned`);
         this.exceptionService.throwConflictException('Driver', newDriver.id);
@@ -120,7 +120,7 @@ export class AssignmentsService {
     }
 
     if (vehicleId && vehicleId !== existingAssignment.vehicle.id) {
-      const newVehicle = await this.vehicleService.findOne(vehicleId);
+      const newVehicle = await this.vehiclesService.findOne(vehicleId);
       if (newVehicle.assigned) {
         winstonLogger.warn(`[AssignmentsService] New vehicle ${vehicleId} is already assigned`);
         this.exceptionService.throwConflictException('Vehicle', newVehicle.id);
@@ -142,8 +142,8 @@ export class AssignmentsService {
         await queryRunner.manager.save(Vehicle, existingAssignment.vehicle);
       }
 
-      const newDriver = driverId ? await this.driverService.findOne(driverId) : existingAssignment.driver;
-      const newVehicle = vehicleId ? await this.vehicleService.findOne(vehicleId) : existingAssignment.vehicle;
+      const newDriver = driverId ? await this.driversService.findOne(driverId) : existingAssignment.driver;
+      const newVehicle = vehicleId ? await this.vehiclesService.findOne(vehicleId) : existingAssignment.vehicle;
 
       if (driverId && driverId !== existingAssignment.driver.id) {
         newDriver.assigned = true;
@@ -184,8 +184,8 @@ export class AssignmentsService {
   async remove(id: string) {
     winstonLogger.debug(`[AssignmentsService] Removing assignment with ID: ${id}`);
     const assignment = await this.findOne(id);
-    const driver = await this.driverService.findOne(assignment.driver.id);
-    const vehicle = await this.vehicleService.findOne(assignment.vehicle.id);
+    const driver = await this.driversService.findOne(assignment.driver.id);
+    const vehicle = await this.vehiclesService.findOne(assignment.vehicle.id);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

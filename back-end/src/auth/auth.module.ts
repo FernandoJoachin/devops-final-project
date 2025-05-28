@@ -32,5 +32,6 @@ import { CommonModule } from 'src/common/common.module';
       }
     })
   ],
+  exports: [AuthService, JwtModule]
 })
 export class AuthModule {}

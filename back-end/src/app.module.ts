@@ -7,6 +7,7 @@ import { DriversModule } from './drivers/drivers.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { RoutesModule } from './routes/routes.module';
 import { AuthModule } from './auth/auth.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     AssignmentsModule,
     RoutesModule,
     AuthModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}
