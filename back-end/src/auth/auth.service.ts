@@ -154,4 +154,14 @@ export class AuthService {
     winstonLogger.debug(`[AuthService] Generated JWT for payload: ${JSON.stringify(payload)}`);
     return token;
   }
+
+  async findAll() {
+    try {
+      winstonLogger.debug('[AuthService] Retrieving all users');
+      return this.userRepository.find();
+    } catch (error) {
+      winstonLogger.error(`[AuthService] Error while retrieving users: ${error.message}`);
+      this.exceptionService.handleDBExceptions(error);
+    }
+  }
 }
