@@ -1,0 +1,23 @@
+// frontend-build
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'develop',
+                    url: 'https://github.com/FernandoJoachin/devops-final-project.git'
+            }
+        }
+
+        stage('Build') {
+          steps {
+                dir('./front-end') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                    archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                }
+            }
+        }
+    }
+}
