@@ -13,8 +13,8 @@ pipeline {
         stage('Build') {
           steps {
                 dir('./front-end') {
-                    sh 'npm install'
-                    sh 'npm run build'
+                    bat 'npm install'
+                    bat 'npm run build'
                     archiveArtifacts artifacts: 'dist/**', fingerprint: true
                 }
             }
