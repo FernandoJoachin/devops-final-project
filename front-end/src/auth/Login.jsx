@@ -19,7 +19,7 @@ export const Login = ({ onLogin }) => {
     const baseRoute = import.meta.env.VITE_API_URL;
 
     try {
-      const res = await fetch(`${baseRoute}/api/auth/login`, {
+      const res = await fetch(`${baseRoute}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
