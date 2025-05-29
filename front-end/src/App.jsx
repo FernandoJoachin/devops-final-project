@@ -12,6 +12,7 @@ import { EditAssignment } from "./pages/assignments/EditAssignment";
 import { EditVehicle } from "./pages/vehicles/EditVehicles";
 import { EditRoute } from "./pages/routes/EditRoute";
 import { EditDriver } from "./pages/drivers/EditDriver";
+import { Dashboard } from "./dashboard/Dashboard";
 
 import "./index.css";
 
@@ -29,7 +30,7 @@ export const App = () => {
           {user ? (
             <Route element={<PrivateRoute />}>
               <Route element={<SideBar />}>
-                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+                <Route path="/dashboard" element={<Dashboard />} />
 
                 <Route path="/assignment" element={<AssignmentIndex />} />
                 <Route path="/assignment/new" element={<EditAssignment />} /> 

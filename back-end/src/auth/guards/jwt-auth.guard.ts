@@ -1,19 +1,40 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { winstonLogger } from 'src/common/utils/loggers';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest<Request>();
+    const token = typeof req.headers['authorization'] === 'string'
+      ? req.headers['authorization']
+      : 'no token provided';
 
     if (err || !user) {
-      const token = req.headers['authorization'] || 'no token provided';
-      winstonLogger.warn(`JWT authentication failed. Token: ${token}, Reason: ${info?.message || err?.message}`);
+      winstonLogger.error({
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        method: req.method,
+        url: req.url,
+        token,
+        reason: info?.message || err?.message || 'Unknown error',
+        message: 'JWT authentication failed',
+        statusCode: 401, 
+      });
+
       throw err || new UnauthorizedException('Invalid or missing token');
     }
 
-    winstonLogger.debug(`User authenticated successfully via JWT: ${user.id}`);
+    winstonLogger.debug({
+      timestamp: new Date().toISOString(),
+      level: 'debug',
+      message: `User authenticated successfully via JWT`,
+      userId: user.id,
+      method: req.method,
+      url: req.url,
+    });
+
     return user;
   }
 }
