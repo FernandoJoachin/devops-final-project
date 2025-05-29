@@ -2,17 +2,16 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_USER = 'ubuntu-server'                    // Usuario SSH
-        REMOTE_HOST = '192.168.0.15'                     // IP o nombre de la VM
-        REMOTE_PATH = '/var/www/html'                    // Ruta Nginx en la VM
-        SSH_KEY = credentials('ssh-key')                 // Credenciales SSH
+        REMOTE_USER = 'ubuntu-server'
+        REMOTE_HOST = '192.168.0.15'
+        REMOTE_PATH = '/var/www/html'
     }
 
     stages {
         stage('Obtener build del frontend') {
             steps {
                 copyArtifacts(
-                    projectName: 'Front Build', // Nombre del job de build
+                    projectName: 'Front Build',
                     filter: 'dist/**',
                     target: 'dist',
                     fingerprintArtifacts: true
@@ -22,18 +21,22 @@ pipeline {
 
         stage('Enviar a la VM') {
             steps {
-                bat """
-                ssh -i %SSH_KEY% %REMOTE_USER%@%REMOTE_HOST% "sudo rm -rf %REMOTE_PATH%/*"
-                scp -i %SSH_KEY% -r dist/* %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%/
-                """
+                sshagent(['ssh-key']) {
+                    bat """
+                    ssh %REMOTE_USER%@%REMOTE_HOST% "sudo rm -rf %REMOTE_PATH%/*"
+                    scp -r dist/* %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%/
+                    """
+                }
             }
         }
 
-        stage('Reiniciar Nginx (opcional)') {
+        stage('Reiniciar Nginx') {
             steps {
-                bat """
-                ssh -i %SSH_KEY% %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
-                """
+                sshagent(['ssh-key']) {
+                    bat """
+                    ssh %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
+                    """
+                }
             }
         }
     }
