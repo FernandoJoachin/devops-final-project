@@ -1,21 +1,26 @@
-// frontend-build
 pipeline {
     agent any
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop',
+                git branch: 'feature/DFP-47_Generar_script_jenkins_deploy',
                     url: 'https://github.com/FernandoJoachin/devops-final-project.git'
             }
         }
 
-        stage('Build') {
-          steps {
+        stage('Build and Dockerize') {
+            steps {
                 dir('./front-end') {
-                    bat 'npm install'
-                    bat 'npm run build'
-                    archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                 withCredentials([string(credentialsId: 'front-env', variable: 'FRONTEND_ENV')]) {
+                        writeFile file: '.env', text: "${FRONTEND_ENV}"
+
+                        bat 'npm install'
+                        bat 'npm run build'
+                        bat 'docker build -t frontend:latest .'
+                        bat 'docker save frontend:latest -o frontend-image.tar'
+                        archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
+                    }
                 }
             }
         }
