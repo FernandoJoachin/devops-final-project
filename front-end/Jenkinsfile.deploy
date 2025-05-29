@@ -7,7 +7,7 @@ pipeline {
         IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
         PORT_MAPPING = "8080:80"
-        ENV_CONTENT = 'VITE_API_URL=http://192.168.202.35:3000'
+        ENV_CONTENT = 'VITE_API_URL=http://192.168.0.13:3000'
     }
 
     stages {
