@@ -17,7 +17,7 @@ pipeline {
         stage('Enviar a la VM') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'ssh-key')]) {
-                    sh '''
+                    bat '''
                         echo "Sending to VM..."
                         chmod 600 $SSH_KEY
                         scp -o StrictHostKeyChecking=no -i $SSH_KEY -r dist/* $DESTINATION:$DESTINATION_ROUTE
@@ -29,7 +29,7 @@ pipeline {
         stage('Restart Nginx') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'ssh-key')]) {
-                    sh '''
+                    bat '''
                         echo "Restarting NGINX..."
                         ssh -o StrictHostKeyChecking=no -i $SSH_KEY $DESTINATION "sudo systemctl restart nginx"
                     '''
