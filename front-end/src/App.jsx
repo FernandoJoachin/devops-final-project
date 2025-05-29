@@ -14,7 +14,6 @@ import { EditRoute } from "./pages/routes/EditRoute";
 import { EditDriver } from "./pages/drivers/EditDriver";
 
 import "./index.css";
-import { Dashboard } from "./dashboard/Dashboard";
 
 export const App = () => {
   const [user, setUser] = useState(null);
@@ -30,7 +29,7 @@ export const App = () => {
           {user ? (
             <Route element={<PrivateRoute />}>
               <Route element={<SideBar />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
                 <Route path="/assignment" element={<AssignmentIndex />} />
                 <Route path="/assignment/new" element={<EditAssignment />} /> 
