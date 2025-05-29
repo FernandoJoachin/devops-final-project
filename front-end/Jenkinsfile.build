@@ -12,11 +12,15 @@ pipeline {
         stage('Build and Dockerize') {
             steps {
                 dir('./front-end') {
-                    bat 'npm install'
-                    bat 'npm run build'
-                    bat 'docker build -t frontend:latest .'
-                    bat 'docker save frontend:latest -o frontend-image.tar'
-                    archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
+                 withCredentials([string(credentialsId: 'front-env', variable: 'FRONTEND_ENV')]) {
+                        writeFile file: '.env', text: "${FRONTEND_ENV}"
+
+                        bat 'npm install'
+                        bat 'npm run build'
+                        bat 'docker build -t frontend:latest .'
+                        bat 'docker save frontend:latest -o frontend-image.tar'
+                        archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
+                    }
                 }
             }
         }
