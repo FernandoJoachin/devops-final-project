@@ -20,20 +20,25 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Enviando archivos a la VM (temporal)...
+                        echo Creating temporary directory if it doesn't exists...
                         ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "mkdir -p %TEMP_ROUTE%"
+
+                        echo Sending VM (temporary)...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%TEMP_ROUTE%/
                     '''
                 }
             }
         }
 
-        stage('Moving to /var/www/html with sudo') {
+        stage('Clear and move to /var/www/html') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Moviendo archivos a %FINAL_ROUTE%...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/"
+                        echo Cleaning and moving...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "
+                            sudo rm -rf %FINAL_ROUTE%/dist && \
+                            sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/
+                        "
                     '''
                 }
             }
