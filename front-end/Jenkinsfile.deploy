@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DESTINATION = "ubuntu-server@192.168.202.84"
+        DESTINATION = "ubuntu-server@192.168.0.14"
         REMOTE_IMAGE_PATH = "/home/ubuntu-server/frontend-image.tar"
         IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
