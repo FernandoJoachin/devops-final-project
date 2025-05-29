@@ -1,0 +1,97 @@
+pipeline{
+    agent any
+    environment {
+        IMAGE_NAME = "image-dfp-backend"
+        NETWORK_NAME = 'dfp-backend-network'
+        CONTAINER_NAME = 'container-dfp-backend'
+        ENV_FILE = 'ENV_FILE'
+    }
+
+    stages {
+
+        stage('Prepare Env File') {
+            steps {
+                withCredentials([file(credentialsId: env.ENV_FILE, variable: 'SECRET_FILE')]) {
+                    dir('back-end'){
+                        bat 'copy "%SECRET_FILE%" ".env"'
+                    }
+                }
+            }
+        }
+
+
+        stage('Install dependencies') {
+            steps {
+                dir('back-end') {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('Compile proyect') {
+            steps {
+                dir('back-end') {
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+
+        stage('Build image Docker') {
+            steps {
+                dir('back-end') {
+                    sh 'docker build -t $IMAGE_NAME:latest .'
+                }
+            }
+        }
+
+       stage('Check and create Red exists') {
+            steps {
+                sh '''
+                    if ! docker network ls --format '{{.Name}}' | sed -n "/^${NETWORK_NAME}$/p" > /dev/null; then
+                        docker network create ${NETWORK_NAME}
+                        echo "Red ${NETWORK_NAME} created."
+                    else
+                        echo "Red ${NETWORK_NAME} exists."
+                    fi
+                '''
+            }
+        }
+
+        stage('Restart container proyect') {
+            steps {
+                script {
+                    def isRunning = sh(
+                        script: "docker ps --format \"{{.Names}}\" | findstr /B /C:\"${env.CONTAINER_NAME}\"",
+                        returnStatus: true
+                    )
+
+                    def exists = sh(
+                        script: "docker ps -a --format \"{{.Names}}\" | findstr /B /C:\"${env.CONTAINER_NAME}\"",
+                        returnStatus: true
+                    )
+
+                    if (isRunning == 0) {
+                        echo "Container '${env.CONTAINER_NAME}' is running. Stopping..."
+                        sh "docker stop ${env.CONTAINER_NAME}"
+                    }
+
+                    if (exists == 0) {
+                        echo "Container '${env.CONTAINER_NAME}' exists. Deleting..."
+                        sh "docker rm ${env.CONTAINER_NAME}"
+                    } else {
+                        echo "Container '${env.CONTAINER_NAME}' does not exists. Will be create with docker-compose."
+                    }
+                }
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                dir('back-end'){
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+}
