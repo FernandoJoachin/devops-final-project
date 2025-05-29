@@ -34,10 +34,9 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Cleaning and moving...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% ^
-                            'sudo rm -rf %FINAL_ROUTE%/dist && sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/'
+                        ssh -o StrictHostKeyChecking=no -i "****" ubuntu-server@192.168.0.15 "sudo rm -rf /var/www/html/dist && sudo mv /home/ubuntu-server/temp_frontend/* /var/www/html/"
                     '''
+
                 }
             }
         }
