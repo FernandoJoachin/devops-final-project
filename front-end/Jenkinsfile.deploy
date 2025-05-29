@@ -19,8 +19,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
                         echo Enviando archivos a la VM...
-                        powershell -Command "chmod 600 $env:SSH_KEY"
-                        powershell -Command "scp -o StrictHostKeyChecking=no -i $env:SSH_KEY -r dist/* $env:DESTINATION:`$env:DESTINATION_ROUTE`"
+                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%DESTINATION_ROUTE%
                     '''
                 }
             }
@@ -30,8 +29,8 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Reiniciando NGINX en la VM...
-                        powershell -Command "ssh -o StrictHostKeyChecking=no -i $env:SSH_KEY $env:DESTINATION 'sudo systemctl restart nginx'"
+                        echo Reiniciando NGINX...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo systemctl restart nginx"
                     '''
                 }
             }
