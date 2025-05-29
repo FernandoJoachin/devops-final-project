@@ -21,18 +21,13 @@ pipeline {
         stage('Deploy Docker container on VM') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    bat '''
+                    bat """
                         echo Sending Docker image to VM...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" frontend-image.tar %DESTINATION%:%REMOTE_IMAGE_PATH%
 
                         echo Deploying container...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "
-                            docker load -i %REMOTE_IMAGE_PATH% &&
-                            docker stop %CONTAINER_NAME% || true &&
-                            docker rm %CONTAINER_NAME% || true &&
-                            docker run -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%
-                        "
-                    '''
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "docker load -i %REMOTE_IMAGE_PATH% && docker stop %CONTAINER_NAME% || true && docker rm %CONTAINER_NAME% || true && docker run -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%"
+                    """
                 }
             }
         }
