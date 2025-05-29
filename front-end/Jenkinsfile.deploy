@@ -31,7 +31,7 @@ pipeline {
 
         stage('Reiniciar Nginx (opcional)') {
             steps {
-                sh """
+                bat """
                 ssh -i %SSH_KEY% %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
                 """
             }
