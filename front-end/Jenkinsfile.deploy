@@ -30,12 +30,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "echo '%ENV_CONTENT%' > /home/ubuntu-server/.env"
 
                         echo Deploying container...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "
-                            docker load -i %REMOTE_IMAGE_PATH% &&
-                            docker stop %CONTAINER_NAME% || true &&
-                            docker rm %CONTAINER_NAME% || true &&
-                            docker run --env-file /home/ubuntu-server/.env -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%
-                        "
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "docker load -i %REMOTE_IMAGE_PATH% && docker stop %CONTAINER_NAME% || true && docker rm %CONTAINER_NAME% || true && docker run --env-file /home/ubuntu-server/.env -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%"
                     """
                 }
             }
