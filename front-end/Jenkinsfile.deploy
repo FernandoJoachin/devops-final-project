@@ -1,20 +1,18 @@
-// frontend-deploy
 pipeline {
     agent any
 
     environment {
-        REMOTE_USER = 'ubuntu-server'         // Usuario SSH
-        REMOTE_HOST = '192.168.0.15'        // IP o nombre de la VM
-        REMOTE_PATH = '/home/ubuntu-server/front'   // Ruta destino en la VM
-        SSH_KEY = credentials('ssh-key') // Credenciales para entrar por ssh
-        TAG = "${env.BUILD_NUMBER}"           // Versión del build para tag de imagen
+        REMOTE_USER = 'ubuntu-server'                    // Usuario SSH
+        REMOTE_HOST = '192.168.0.15'                     // IP o nombre de la VM
+        REMOTE_PATH = '/var/www/html'                    // Ruta Nginx en la VM
+        SSH_KEY = credentials('ssh-key')                 // Credenciales SSH
     }
 
     stages {
         stage('Obtener build del frontend') {
             steps {
                 copyArtifacts(
-                    projectName: 'Front Build', // nombre exacto del Job 1
+                    projectName: 'Front Build', // Nombre del job de build
                     filter: 'dist/**',
                     target: 'dist',
                     fingerprintArtifacts: true
@@ -22,37 +20,20 @@ pipeline {
             }
         }
 
-        stage('Empaquetar con Docker') {
-            steps {
-                bat '''
-                mkdir docker-build
-                cp -r dist docker-build/dist
-                cp Dockerfile docker-build/
-                cp nginx.conf docker-build/
-                '''
-            }
-        }
-
         stage('Enviar a la VM') {
             steps {
-                bat '''
-                ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST "rm -rf $REMOTE_PATH && mkdir -p $REMOTE_PATH"
-                scp -i $SSH_KEY -r docker-build/* $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
-                '''
+                bat """
+                ssh -i %SSH_KEY% %REMOTE_USER%@%REMOTE_HOST% "sudo rm -rf %REMOTE_PATH%/*"
+                scp -i %SSH_KEY% -r dist/* %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%/
+                """
             }
         }
 
-        stage('Desplegar contenedor') {
+        stage('Reiniciar Nginx (opcional)') {
             steps {
-                sh '''
-                ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST << EOF
-                cd $REMOTE_PATH
-                docker build -t frontend:$TAG .
-                docker stop frontend-app || true
-                docker rm frontend-app || true
-                docker run -d -p 80:80 --name frontend-app frontend-app
-                EOF
-                '''
+                sh """
+                ssh -i %SSH_KEY% %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
+                """
             }
         }
     }
