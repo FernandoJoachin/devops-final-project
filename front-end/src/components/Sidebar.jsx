@@ -3,6 +3,10 @@ import { Link, useLocation, Outlet } from "react-router-dom";
 
 const menuItems = [
   { name: "Dashboard", path: "/dashboard" },
+  { name: "Assignments", path: "/assignment" },
+  { name: "Vehicles", path: "/vehicle" },
+  { name: "Drivers", path: "/driver" },
+  { name: "Routes", path: "/route" },
 ];
 
 export const SideBar = () => {

@@ -37,7 +37,7 @@ export const Login = ({ onLogin }) => {
       onLogin({ email });
       showToast("¡Inicio de sesión exitoso!", "success");
 
-      setTimeout(() => navigate("/dashboard"), 1000);
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
       console.error("Login error:", err);
       showToast("Credenciales incorrectas o error de red.", "error");
@@ -87,7 +87,7 @@ export const Login = ({ onLogin }) => {
 
         <p className="text-sm mt-4 text-center">
           ¿No tienes cuenta?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline">
+          <Link to="/register" style={{ color: "blue" }}>
             Regístrate aquí
           </Link>
         </p>

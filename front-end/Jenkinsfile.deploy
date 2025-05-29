@@ -2,63 +2,36 @@ pipeline {
     agent any
 
     environment {
-        DESTINATION = "ubuntu-server@192.168.202.114"
-        TEMP_ROUTE = "/home/ubuntu-server/temp_frontend"
-        FINAL_ROUTE = "/var/www/html"
+        DESTINATION = "ubuntu-server@192.168.202.118"
+        REMOTE_IMAGE_PATH = "/home/ubuntu-server/frontend-image.tar"
+        IMAGE_NAME = "my-frontend:latest"
+        CONTAINER_NAME = "frontend"
+        PORT_MAPPING = "80:80"
     }
 
     stages {
-        stage('Get frontend build') {
+        stage('Get frontend Docker image') {
             steps {
-                echo "Copying build artifacts..."
+                echo "Copying Docker image artifact"
                 copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
-                bat 'dir dist /s'
+                bat 'dir *.tar'
             }
         }
 
-        stage('Send to temporary directory in VM') {
+        stage('Deploy Docker container on VM') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Creating temporary directory if it doesn't exist...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "mkdir -p %TEMP_ROUTE%"
+                        echo Sending Docker image to VM...
+                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" frontend-image.tar %DESTINATION%:%REMOTE_IMAGE_PATH%
 
-                        echo Sending build files to VM...
-                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%TEMP_ROUTE%/
-                    '''
-                }
-            }
-        }
-
-        stage('Clear and move to /var/www/html') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    bat '''
-                        echo Replacing frontend in /var/www/html...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo rm -rf %FINAL_ROUTE%/* && sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/"
-                    '''
-                }
-            }
-        }
-
-        stage('Fix permissions') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    bat '''
-                        echo Fixing permissions...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo chown -R www-data:www-data /var/www/html && sudo chmod -R 755 /var/www/html"
-                    '''
-                }
-            }
-        }
-
-
-        stage('Restart Nginx') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    bat '''
-                        echo Restarting NGINX...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo systemctl restart nginx"
+                        echo Deploying container...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "
+                            docker load -i %REMOTE_IMAGE_PATH% &&
+                            docker stop %CONTAINER_NAME% || true &&
+                            docker rm %CONTAINER_NAME% || true &&
+                            docker run -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%
+                        "
                     '''
                 }
             }
@@ -67,10 +40,10 @@ pipeline {
 
     post {
         failure {
-            echo '❌ Deployment failed.'
+            echo 'Pipeline failed.'
         }
         success {
-            echo '✅ Deployment successful.'
+            echo 'Pipeline successful.'
         }
     }
 }
