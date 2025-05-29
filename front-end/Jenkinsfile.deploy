@@ -7,6 +7,7 @@ pipeline {
         IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
         PORT_MAPPING = "8080:80"
+        ENV_CONTENT = 'VITE_API_URL=http://192.168.202.35:3000'
     }
 
     stages {
@@ -25,8 +26,16 @@ pipeline {
                         echo Sending Docker image to VM...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" frontend-image.tar %DESTINATION%:%REMOTE_IMAGE_PATH%
 
+                        echo Generating .env on remote machine...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "echo '%ENV_CONTENT%' > /home/ubuntu-server/.env"
+
                         echo Deploying container...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "docker load -i %REMOTE_IMAGE_PATH% && docker stop %CONTAINER_NAME% || true && docker rm %CONTAINER_NAME% || true && docker run -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%"
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "
+                            docker load -i %REMOTE_IMAGE_PATH% &&
+                            docker stop %CONTAINER_NAME% || true &&
+                            docker rm %CONTAINER_NAME% || true &&
+                            docker run --env-file /home/ubuntu-server/.env -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%
+                        "
                     """
                 }
             }
