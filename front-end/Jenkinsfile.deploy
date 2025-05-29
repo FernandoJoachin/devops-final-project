@@ -24,7 +24,7 @@ pipeline {
 
         stage('Empaquetar con Docker') {
             steps {
-                sh '''
+                bat '''
                 mkdir docker-build
                 cp -r dist docker-build/dist
                 cp Dockerfile docker-build/
@@ -35,7 +35,7 @@ pipeline {
 
         stage('Enviar a la VM') {
             steps {
-                sh '''
+                bat '''
                 ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST "rm -rf $REMOTE_PATH && mkdir -p $REMOTE_PATH"
                 scp -i $SSH_KEY -r docker-build/* $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
                 '''
