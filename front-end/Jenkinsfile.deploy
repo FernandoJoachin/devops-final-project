@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Get frontend build') {
             steps {
-                echo "Copying artifacts"
+                echo "Copying build artifacts..."
                 copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
                 bat 'dir dist /s'
             }
@@ -20,10 +20,10 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Creating temporary directory if it doesn't exists...
+                        echo Creating temporary directory if it doesn't exist...
                         ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "mkdir -p %TEMP_ROUTE%"
 
-                        echo Sending VM (temporary)...
+                        echo Sending build files to VM...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%TEMP_ROUTE%/
                     '''
                 }
@@ -34,19 +34,18 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo rm -rf /var/www/html/* && sudo mv /home/ubuntu-server/temp_frontend/* /var/www/html/"
+                        echo Replacing frontend in /var/www/html...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo rm -rf %FINAL_ROUTE%/* && sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/"
                     '''
-
                 }
             }
         }
-
 
         stage('Restart Nginx') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Reiniciando NGINX...
+                        echo Restarting NGINX...
                         ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo systemctl restart nginx"
                     '''
                 }
@@ -56,10 +55,10 @@ pipeline {
 
     post {
         failure {
-            echo 'Pipeline failed.'
+            echo '❌ Deployment failed.'
         }
         success {
-            echo 'Pipeline successful.'
+            echo '✅ Deployment successful.'
         }
     }
 }
