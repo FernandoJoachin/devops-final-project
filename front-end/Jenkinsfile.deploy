@@ -4,7 +4,7 @@ pipeline {
     environment {
         DESTINATION = "ubuntu-server@192.168.202.11"
         REMOTE_IMAGE_PATH = "/home/ubuntu-server/frontend-image.tar"
-        IMAGE_NAME = "my-frontend:latest"
+        IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
         PORT_MAPPING = "80:80"
     }
