@@ -2,42 +2,48 @@ pipeline {
     agent any
 
     environment {
-        REMOTE_USER = 'ubuntu-server'
-        REMOTE_HOST = '192.168.0.15'
-        REMOTE_PATH = '/var/www/html'
+        DESTINATION = "ubuntu@192.168.0.15"
+        DESTINATION_ROUTE = "/var/www/html"
     }
 
     stages {
-        stage('Obtener build del frontend') {
+        stage('Get frontend build') {
             steps {
-                copyArtifacts(
-                    projectName: 'Front Build',
-                    filter: 'dist/**',
-                    target: 'dist',
-                    fingerprintArtifacts: true
-                )
+                echo "Copying artifacts"
+                copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
             }
         }
 
         stage('Enviar a la VM') {
             steps {
-                sshagent(['ssh-key']) {
-                    sh """
-                    ssh %REMOTE_USER%@%REMOTE_HOST% "sudo rm -rf %REMOTE_PATH%/*"
-                    scp -r dist/* %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%/
-                    """
+                withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-server', keyFileVariable: 'ssh-key')]) {
+                    sh '''
+                        echo "Sending to VM..."
+                        chmod 600 $SSH_KEY
+                        scp -o StrictHostKeyChecking=no -i $SSH_KEY -r dist/* $DESTINATION:$DESTINATION_ROUTE
+                    '''
                 }
             }
         }
 
-        stage('Reiniciar Nginx') {
+        stage('Restart Nginx') {
             steps {
-                sshagent(['ssh-key']) {
-                    sh """
-                    ssh %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
-                    """
+                withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-server', keyFileVariable: 'ssh-key')]) {
+                    sh '''
+                        echo "Restarting NGINX..."
+                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY $DESTINATION "sudo systemctl restart nginx"
+                    '''
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Pipeline succesful.'
         }
     }
 }
