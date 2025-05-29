@@ -6,7 +6,7 @@ pipeline {
         REMOTE_IMAGE_PATH = "/home/ubuntu-server/frontend-image.tar"
         IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
-        PORT_MAPPING = "8090:8090"
+        PORT_MAPPING = "8080:80"
     }
 
     stages {
