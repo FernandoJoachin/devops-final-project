@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop',
+                git branch: 'feature/DFP-47_Generar_script_jenkins_deploy',
                     url: 'https://github.com/FernandoJoachin/devops-final-project.git'
             }
         }
