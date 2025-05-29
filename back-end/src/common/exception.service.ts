@@ -1,20 +1,33 @@
-import { Injectable, Logger, BadRequestException, InternalServerErrorException, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { winstonLogger } from 'src/common/utils/loggers';
 
 @Injectable()
 export class ExceptionService {
-  private readonly logger = new Logger(ExceptionService.name);
-
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService
+  ) {}
 
   handleDBExceptions(error: any): never {
     if (error.code === '23505') {
       throw new BadRequestException(error.detail);
     }
 
-    this.logger.error(error);
+    winstonLogger.error('Database exception', {
+      error,
+      context: 'handleDBExceptions',
+    });
+
     const isDev = this.configService.get<string>('NODE_ENV') !== 'production';
-    const message = isDev ? 'Unexpected error, check server logs' : 'Internal server error';
+    const message = isDev
+      ? 'Unexpected error, check server logs'
+      : 'Internal server error';
     throw new InternalServerErrorException(message);
   }
 
@@ -22,7 +35,9 @@ export class ExceptionService {
     throw new NotFoundException(`${resource} with ID ${id} not found`);
   }
 
-  throwConflictException(resource: string, id: string){
-    throw new ConflictException(`The ${resource} with ID ${id} has already been assigned`)
+  throwConflictException(resource: string, id: string): never {
+    throw new ConflictException(
+      `The ${resource} with ID ${id} has already been assigned`,
+    );
   }
 }
