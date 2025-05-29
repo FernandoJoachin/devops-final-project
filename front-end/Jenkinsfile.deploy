@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         DESTINATION = "ubuntu-server@192.168.0.15"
-        DESTINATION_ROUTE = "/var/www/html"
+        TEMP_ROUTE = "/home/ubuntu-server/temp_frontend"
+        FINAL_ROUTE = "/var/www/html"
     }
 
     stages {
@@ -11,15 +12,28 @@ pipeline {
             steps {
                 echo "Copying artifacts"
                 copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
+                bat 'dir dist /s'
             }
         }
 
-        stage('Enviar a la VM') {
+        stage('Send to temporary directory in VM') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat '''
-                        echo Enviando archivos a la VM...
-                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%DESTINATION_ROUTE%
+                        echo Enviando archivos a la VM (temporal)...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "mkdir -p %TEMP_ROUTE%"
+                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" -r dist/* %DESTINATION%:%TEMP_ROUTE%/
+                    '''
+                }
+            }
+        }
+
+        stage('Moving to /var/www/html with sudo') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    bat '''
+                        echo Moviendo archivos a %FINAL_ROUTE%...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo mv %TEMP_ROUTE%/* %FINAL_ROUTE%/"
                     '''
                 }
             }
