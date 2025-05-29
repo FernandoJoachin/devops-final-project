@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DESTINATION = "ubuntu@192.168.0.15"
+        DESTINATION = "ubuntu-server@192.168.0.15"
         DESTINATION_ROUTE = "/var/www/html"
     }
 
