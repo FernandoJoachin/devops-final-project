@@ -41,6 +41,18 @@ pipeline {
             }
         }
 
+        stage('Fix permissions') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    bat '''
+                        echo Fixing permissions...
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "sudo chown -R www-data:www-data /var/www/html && sudo chmod -R 755 /var/www/html"
+                    '''
+                }
+            }
+        }
+
+
         stage('Restart Nginx') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
