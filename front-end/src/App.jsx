@@ -1,33 +1,15 @@
-/**
- * @file App.jsx
- * @description Componente principal de la aplicación React.
- * Este archivo define la estructura de enrutamiento de la aplicación utilizando
- * `react-router-dom`. Contiene la lógica para la autenticación básica (`user` state)
- * y renderiza rutas públicas (login, registro) y rutas protegidas (dashboard,
- * gestión de asignaciones, vehículos, conductores, rutas) que requieren que el
- * usuario esté autenticado.
- * También establece el diseño global con un fondo de gradiente.
- * @author Equipo 3
- * @version 1.0.0
- */
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-// Importación de componentes de autenticación
 import { Login } from "./auth/Login";
-import { Register } from "./auth/Register";
 import { Logout } from "./auth/Logout";
-// Importación de componentes de diseño y utilidad
-import { SideBar } from "./components/Sidebar"; // Barra lateral de navegación
-import { PrivateRoute } from "./components/PrivateRoute"; // Componente para proteger rutas
-// Importación de componentes de página (vistas principales)
-import { Dashboard } from "./dashboard/Dashboard";
+import { SideBar } from "./components/Sidebar"; 
+import { PrivateRoute } from "./components/PrivateRoute"; 
 import { AssignmentIndex } from "./pages/assignments/AssignmentIndex";
 import { VehicleIndex } from "./pages/vehicles/VehicleIndex";
 import { RouteIndex } from "./pages/routes/RouteIndex";
 import { DriverIndex } from "./pages/drivers/DriverIndex";
-// Importación de componentes para edición/creación
 import { EditAssignment } from "./pages/assignments/EditAssignment";
-import { EditVehicle } from "./pages/vehicles/EditVehicle";
+import { EditVehicle } from "./pages/vehicles/EditVehicles";
 import { EditRoute } from "./pages/routes/EditRoute";
 import { EditDriver } from "./pages/drivers/EditDriver";
 
@@ -41,13 +23,13 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login onLogin={setUser} />} /> 
-          <Route path="/register" element={<Register />} /> 
+          {/* <Route path="/register" element={<Register />} />  */}
           <Route path="/logout" element={<Logout />} /> 
 
           {user ? (
             <Route element={<PrivateRoute />}>
               <Route element={<SideBar />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
                 <Route path="/assignment" element={<AssignmentIndex />} />
                 <Route path="/assignment/new" element={<EditAssignment />} /> 

@@ -22,7 +22,7 @@ pipeline {
         stage('Enviar a la VM') {
             steps {
                 sshagent(['ssh-key']) {
-                    bat """
+                    sh """
                     ssh %REMOTE_USER%@%REMOTE_HOST% "sudo rm -rf %REMOTE_PATH%/*"
                     scp -r dist/* %REMOTE_USER%@%REMOTE_HOST%:%REMOTE_PATH%/
                     """
@@ -33,7 +33,7 @@ pipeline {
         stage('Reiniciar Nginx') {
             steps {
                 sshagent(['ssh-key']) {
-                    bat """
+                    sh """
                     ssh %REMOTE_USER%@%REMOTE_HOST% "sudo systemctl restart nginx"
                     """
                 }
