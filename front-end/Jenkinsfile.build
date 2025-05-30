@@ -22,8 +22,11 @@ pipeline {
                     bat 'npm install'
                     bat 'npm run build'
 
+                    bat 'docker rmi -f frontend:latest || exit 0'
+
                     bat 'docker build -t frontend:latest .'
-                    bat 'docker save frontend:latest -o ..frontend-image.tar'
+
+                    bat 'docker save frontend:latest -o ..\\frontend-image.tar'
                 }
 
                 archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
