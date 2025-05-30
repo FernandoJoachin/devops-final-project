@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VITE_API_URL = 'http://192.168.0.13:3000/'
+        VITE_API_URL = 'http://192.168.0.13:3000'
     }
 
     stages {
