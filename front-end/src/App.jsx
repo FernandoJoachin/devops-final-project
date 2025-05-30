@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { Login } from "./auth/Login";
 import { Logout } from "./auth/Logout";
+import { Register } from "./auth/Register";
 import { SideBar } from "./components/Sidebar"; 
 import { PrivateRoute } from "./components/PrivateRoute"; 
 import { AssignmentIndex } from "./pages/assignments/AssignmentIndex";
@@ -13,6 +14,7 @@ import { EditVehicle } from "./pages/vehicles/EditVehicles";
 import { EditRoute } from "./pages/routes/EditRoute";
 import { EditDriver } from "./pages/drivers/EditDriver";
 import { Dashboard } from "./dashboard/Dashboard";
+import { InvitationRequest } from "./pages/invitation/InvitationRequest";
 
 import "./index.css";
 
@@ -24,7 +26,7 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login onLogin={setUser} />} /> 
-          {/* <Route path="/register" element={<Register />} />  */}
+          {<Route path="/register" element={<Register />} />}
           <Route path="/logout" element={<Logout />} /> 
 
           {user ? (
@@ -47,6 +49,9 @@ export const App = () => {
                 <Route path="/route" element={<RouteIndex />} /> 
                 <Route path="/route/new" element={<EditRoute />} /> 
                 <Route path="/route/:id/edit" element={<EditRoute />} /> 
+
+                <Route path="/invitation" element={<InvitationRequest />} />
+
               </Route>
             </Route>
           ) : (
