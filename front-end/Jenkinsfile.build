@@ -2,30 +2,32 @@ pipeline {
     agent any
 
     environment {
-        VITE_API_URL = 'http://192.168.0.13:3000'
+        VITE_API_URL = 'http://192.168.0.13:3000/'
     }
 
     stages {
-        stage('Checkout') {
+
+        stage('Clonar repositorio') {
             steps {
                 git branch: 'feature/DFP-47_Generar_script_jenkins_deploy',
                     url: 'https://github.com/FernandoJoachin/devops-final-project.git'
             }
         }
 
-        stage('Build and Dockerize') {
+        stage('Build y Dockerizar frontend') {
             steps {
-                dir('./front-end') {
+                dir('front-end') {
                     writeFile file: '.env', text: "VITE_API_URL=${VITE_API_URL}"
 
                     bat 'npm install'
                     bat 'npm run build'
+
                     bat 'docker build -t frontend:latest .'
-                    bat 'docker save frontend:latest -o ../frontend-image.tar'
+                    bat 'docker save frontend:latest -o ..\frontend-image.tar'
                 }
 
                 archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
-                archiveArtifacts artifacts: 'front-end/.env', fingerprint: true 
+                archiveArtifacts artifacts: 'front-end/.env', fingerprint: true
             }
         }
     }
