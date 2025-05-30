@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        VITE_API_URL = 'http://192.168.0.13:3000'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -12,11 +16,14 @@ pipeline {
         stage('Build and Dockerize') {
             steps {
                 dir('./front-end') {
+                    writeFile file: '.env', text: "VITE_API_URL=${VITE_API_URL}"
+
                     bat 'npm install'
                     bat 'npm run build'
                     bat 'docker build -t frontend:latest .'
-                    bat 'docker save frontend:latest -o ../frontend-image.tar' 
+                    bat 'docker save frontend:latest -o ../frontend-image.tar'
                 }
+
                 archiveArtifacts artifacts: 'frontend-image.tar', fingerprint: true
                 archiveArtifacts artifacts: 'front-end/.env', fingerprint: true 
             }
