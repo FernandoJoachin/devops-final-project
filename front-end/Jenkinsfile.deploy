@@ -23,6 +23,10 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat """
+
+                        echo Deleting existing image...
+                        docker rmi -f %IMAGE_NAME% || true
+
                         echo Sending Docker image to VM...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" frontend-image.tar %DESTINATION%:%REMOTE_IMAGE_PATH%
 
