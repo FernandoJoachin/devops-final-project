@@ -2,31 +2,51 @@ pipeline {
     agent any
 
     environment {
-        DESTINATION = "ubuntu-server@192.168.202.11"
+        DESTINATION = "ubuntu-server@192.168.0.14"
         REMOTE_IMAGE_PATH = "/home/ubuntu-server/frontend-image.tar"
+        REMOTE_ENV_PATH = "/home/ubuntu-server/.env"
         IMAGE_NAME = "frontend:latest"
         CONTAINER_NAME = "frontend"
         PORT_MAPPING = "8080:80"
     }
 
     stages {
-        stage('Get frontend Docker image') {
+
+        stage('Obtener artefactos de Front Build') {
             steps {
-                echo "Copying Docker image artifact"
+                echo "Copiando imagen Docker y archivo .env desde el job 'Front Build'"
                 copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
                 bat 'dir *.tar'
+                bat 'dir front-end'
             }
         }
 
-        stage('Deploy Docker container on VM') {
+        stage('Enviar artefactos a la VM') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                     bat """
-                        echo Sending Docker image to VM...
+                        echo Enviando imagen Docker...
                         scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" frontend-image.tar %DESTINATION%:%REMOTE_IMAGE_PATH%
 
-                        echo Deploying container...
-                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% "docker load -i %REMOTE_IMAGE_PATH% && docker stop %CONTAINER_NAME% || true && docker rm %CONTAINER_NAME% || true && docker run -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%"
+                        echo Enviando archivo .env...
+                        scp -o StrictHostKeyChecking=no -i "%SSH_KEY%" front-end\\.env %DESTINATION%:%REMOTE_ENV_PATH%
+                    """
+                }
+            }
+        }
+
+        stage('Desplegar contenedor en la VM') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    bat """
+                        echo Ejecutando despliegue remoto...
+
+                        ssh -o StrictHostKeyChecking=no -i "%SSH_KEY%" %DESTINATION% ^
+                        "docker rmi -f %IMAGE_NAME% || true && \
+                        docker load -i %REMOTE_IMAGE_PATH% && \
+                        docker stop %CONTAINER_NAME% || true && \
+                        docker rm %CONTAINER_NAME% || true && \
+                        docker run --env-file %REMOTE_ENV_PATH% -d --name %CONTAINER_NAME% -p %PORT_MAPPING% %IMAGE_NAME%"
                     """
                 }
             }
@@ -35,10 +55,10 @@ pipeline {
 
     post {
         failure {
-            echo 'Pipeline failed.'
+            echo '❌ Despliegue fallido.'
         }
         success {
-            echo 'Pipeline successful.'
+            echo '✅ Despliegue exitoso.'
         }
     }
 }
