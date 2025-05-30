@@ -7,6 +7,7 @@ const menuItems = [
   { name: "Vehicles", path: "/vehicle" },
   { name: "Drivers", path: "/driver" },
   { name: "Routes", path: "/route" },
+  { name: "Invitation code", path: "/invitation" },
 ];
 
 export const SideBar = () => {
@@ -52,7 +53,7 @@ export const SideBar = () => {
                     className="flex items-center rounded transition-all px-3 py-2 hover:bg-red-500"
                 >
                     <span className="text-lg w-6 text-center">⎋</span>
-                    {!collapsed && <span className="ml-2 text-sm">Cerrar sesión</span>}
+                    {!collapsed && <span className="ml-2 text-sm">Logout</span>}
                 </Link>
             </div>
         </div>
