@@ -15,7 +15,7 @@ pipeline {
         stage('Obtener artefactos de Front Build') {
             steps {
                 echo "Copiando imagen Docker y archivo .env desde el job 'Front Build 2'"
-                copyArtifacts(projectName: 'Front Build', selector: lastSuccessful())
+                copyArtifacts(projectName: 'Front Build 2', selector: lastSuccessful())
                 bat 'dir *.tar'
                 bat 'dir front-end'
             }
