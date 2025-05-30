@@ -9,7 +9,7 @@ pipeline {
 
         stage('Clonar repositorio') {
             steps {
-                git branch: 'feature/DFP-47_Generar_script_jenkins_deploy',
+                git branch: 'develop',
                     url: 'https://github.com/FernandoJoachin/devops-final-project.git'
             }
         }
