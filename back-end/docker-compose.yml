@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  prueba-jenkins-back:
+    image: image-dfp-backend:latest
+    container_name: container-dfp-backend
+    depends_on:
+      - elasticsearch
+    ports:
+      - "3000:3000"
+    networks:
+      - dfp-backend-network
+    environment:
+      - ELASTIC_URL=http://elasticsearch:9200
+      - ELASTIC_USER=
+      - ELASTIC_PASS=
+      - SUPBASE_DB_URL=${SUPBASE_DB_URL}
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false 
+    ports:
+      - "9200:9200"
+    networks:
+      - dfp-backend-network
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3001:3000"  
+    networks:
+      - dfp-backend-network
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+networks:
+  dfp-backend-network:
+    driver: bridge
+
+volumes:
+  grafana-storage:
